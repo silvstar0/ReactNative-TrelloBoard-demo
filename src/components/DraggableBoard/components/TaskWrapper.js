@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { TouchableWithoutFeedback, Animated } from 'react-native';
 
 class TaskWrapper extends React.Component {

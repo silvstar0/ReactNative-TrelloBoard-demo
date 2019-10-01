@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import _ from 'underscore';
 import ReactTimeout from 'react-timeout';
+
 import Column from './Column';
 import TaskWrapper from './TaskWrapper';
 
@@ -21,7 +22,6 @@ class Board extends React.Component {
     super(props);
 
     this.verticalOffset = 0;
-
     this.state = {
       rotate: new Animated.Value(0),
       startingX: 0,
