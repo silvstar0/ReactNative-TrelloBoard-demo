@@ -8,18 +8,34 @@ class Mover {
   move(rowRepository, registry, draggedItem, x, y) {
     const fromColumnId = draggedItem.columnId();
     const columns = rowRepository.columns();
-    const columnAtPosition = this.positionCalculator.columnAtPosition(columns, x, y);
+    const columnAtPosition = this.positionCalculator.columnAtPosition(
+      columns,
+      x,
+      y,
+    );
     if (!columnAtPosition) {
       return;
     }
 
     const toColumnId = columnAtPosition.id();
     if (toColumnId != fromColumnId) {
-      this.moveToOtherColumn(rowRepository, registry, fromColumnId, toColumnId, draggedItem);
+      this.moveToOtherColumn(
+        rowRepository,
+        registry,
+        fromColumnId,
+        toColumnId,
+        draggedItem,
+      );
     }
 
     let items = rowRepository.visibleItems(toColumnId);
-    const itemAtPosition = this.positionCalculator.itemAtPosition(items, toColumnId, x, y, draggedItem);
+    const itemAtPosition = this.positionCalculator.itemAtPosition(
+      items,
+      toColumnId,
+      x,
+      y,
+      draggedItem,
+    );
     if (!itemAtPosition) {
       return columnAtPosition;
     }
@@ -31,7 +47,12 @@ class Mover {
       return columnAtPosition;
     }
 
-    this.switchItemsBetween(rowRepository, draggedItem, itemAtPosition, toColumnId);
+    this.switchItemsBetween(
+      rowRepository,
+      draggedItem,
+      itemAtPosition,
+      toColumnId,
+    );
 
     return columnAtPosition;
   }
@@ -45,7 +66,9 @@ class Mover {
       fromItem.setIndex(fromItem.index() - 1);
       const newX = fromItems[i - 1].layout().x;
       const newY = fromItems[i - 1].layout().y;
-      fromItem.setLayout(Object.assign(fromItem.layout(), { x: newX, y: newY }));
+      fromItem.setLayout(
+        Object.assign(fromItem.layout(), { x: newX, y: newY }),
+      );
     }
     registry.move(fromColumnId, toColumnId, item);
     rowRepository.notify(fromColumnId, 'reload');
@@ -59,7 +82,9 @@ class Mover {
 
     const visibleItems = rowRepository.visibleItems(toColumnId);
     for (const i of _.range(0, visibleItems.length - 1)) {
-      visibleItems[i].setLayout(Object.assign({}, visibleItems[i + 1].layout()));
+      visibleItems[i].setLayout(
+        Object.assign({}, visibleItems[i + 1].layout()),
+      );
     }
     const lastItem = visibleItems[visibleItems.length - 1];
     const lastLayout = lastItem.layout();
@@ -74,8 +99,12 @@ class Mover {
     draggedItem.setVisible(true);
 
     let items = rowRepository.visibleItems(toColumnId);
-    const draggedItemI = _(items).findIndex((item) => item.id() == draggedItem.id());
-    const itemAtPositionI = _(items).findIndex((item) => item.id() == itemAtPosition.id());
+    const draggedItemI = _(items).findIndex(
+      item => item.id() == draggedItem.id(),
+    );
+    const itemAtPositionI = _(items).findIndex(
+      item => item.id() == itemAtPosition.id(),
+    );
     let range;
     if (draggedItem.index() < itemAtPosition.index()) {
       range = _.range(draggedItemI, itemAtPositionI);
@@ -110,12 +139,14 @@ class Mover {
     firstItem.setIndex(secondIndex);
     secondItem.setIndex(firstIndex);
 
-    firstItem.setLayout(Object.assign(firstItem.layout(), { y: firstY + secondHeight }));
+    firstItem.setLayout(
+      Object.assign(firstItem.layout(), { y: firstY + secondHeight }),
+    );
     secondItem.setLayout(Object.assign(secondItem.layout(), { y: firstY }));
 
     firstItem.setRef(secondRef);
     secondItem.setRef(firstRef);
   }
-};
+}
 
 export default Mover;

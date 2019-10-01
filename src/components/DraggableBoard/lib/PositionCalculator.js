@@ -1,8 +1,8 @@
 class PositionCalculator {
-  TRESHOLD = 35
+  TRESHOLD = 35;
 
   columnAtPosition(columns, x, y) {
-    let column = columns.find((column) => {
+    let column = columns.find(column => {
       let layout = column.layout();
 
       const left = x > layout.x;
@@ -25,11 +25,12 @@ class PositionCalculator {
     let lowerEnd = layout.y + layout.height;
     let lower = y > lowerEnd - this.TRESHOLD && y < lowerEnd + this.TRESHOLD;
 
-    let offset = lower ? 1 : (upper ? -1 : 0);
+    let offset = lower ? 1 : upper ? -1 : 0;
 
     return {
       offset: offset,
-      scrolling: x > layout.x && x < layout.x + layout.width && (lower || upper)
+      scrolling:
+        x > layout.x && x < layout.x + layout.width && (lower || upper),
     };
   }
 
@@ -55,7 +56,7 @@ class PositionCalculator {
   }
 
   itemAtPosition(items, columnId, x, y, draggedItem) {
-    let item = items.find((item) => this.selectItem(x, y, draggedItem, item));
+    let item = items.find(item => this.selectItem(x, y, draggedItem, item));
 
     let firstItem = items[0];
     if (!item && firstItem && firstItem.layout() && y <= firstItem.layout().y) {
@@ -69,6 +70,6 @@ class PositionCalculator {
 
     return item;
   }
-};
+}
 
 export default PositionCalculator;

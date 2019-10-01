@@ -21,14 +21,20 @@ class Registry {
       id: columnId,
       index: columnIndex,
       scrollOffset: 0,
-      items: {}
+      items: {},
     };
     const rows = columnData.rows;
-    const itemsMap = this.buildItemsMap(columnId, rows, existingAttributes.items);
-    return new ColumnItem(Object.assign(existingAttributes, {
-      items: itemsMap,
-      data: columnData
-    }));
+    const itemsMap = this.buildItemsMap(
+      columnId,
+      rows,
+      existingAttributes.items,
+    );
+    return new ColumnItem(
+      Object.assign(existingAttributes, {
+        items: itemsMap,
+        data: columnData,
+      }),
+    );
   }
 
   existingItemAttributes(existingItems, itemId) {
@@ -37,16 +43,19 @@ class Registry {
   }
 
   buildItemsMap(columnId, rows, existingItems) {
-    const items = _.range(rows.length).map((index) => {
+    const items = _.range(rows.length).map(index => {
       const row = rows[index];
       const id = row.id;
-      const existingItemAttributes = this.existingItemAttributes(existingItems, id) || {};
-      return new Item(Object.assign(existingItemAttributes, {
-        id: id,
-        index: index,
-        columnId: columnId,
-        row: row
-      }));
+      const existingItemAttributes =
+        this.existingItemAttributes(existingItems, id) || {};
+      return new Item(
+        Object.assign(existingItemAttributes, {
+          id: id,
+          index: index,
+          columnId: columnId,
+          row: row,
+        }),
+      );
     });
 
     const itemsMap = {};
@@ -58,7 +67,7 @@ class Registry {
   }
 
   updateData(data) {
-    const columns = _.range(data.length).map((columnIndex) => {
+    const columns = _.range(data.length).map(columnIndex => {
       const columnData = data[columnIndex];
       return this.buildColumn(columnIndex, columnData);
     });
@@ -78,7 +87,7 @@ class Registry {
 
   columns() {
     const columns = _(this.map).values();
-    return _(columns).sortBy((column) => column.index());
+    return _(columns).sortBy(column => column.index());
   }
 
   column(columnId) {
@@ -87,18 +96,18 @@ class Registry {
 
   items(columnId) {
     const column = this.column(columnId);
-    return column && column.items() || [];
+    return (column && column.items()) || [];
   }
 
   visibleItems(columnId) {
     const column = this.column(columnId);
-    return column && column.visibleItems() || [];
+    return (column && column.visibleItems()) || [];
   }
 
   item(columnId, itemId) {
     const column = this.column(columnId);
     return column && column.item(itemId);
   }
-};
+}
 
 export default Registry;
