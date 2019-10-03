@@ -325,8 +325,8 @@ class Board extends React.Component {
         horizontal={true}
         {...this.panResponder.panHandlers}
       >
-        {this.movingTask()}
         {columnWrappers}
+        {this.movingTask()}
       </ScrollView>
     );
   }
