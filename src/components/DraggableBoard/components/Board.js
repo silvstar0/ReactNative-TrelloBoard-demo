@@ -22,6 +22,10 @@ class Board extends React.Component {
     super(props);
 
     this.verticalOffset = 0;
+    this.scrollX = 0;
+    this.timer = null;
+    this.x = 0;
+    this.y = 0;
     this.state = {
       rotate: new Animated.Value(0),
       startingX: 0,
@@ -29,7 +33,7 @@ class Board extends React.Component {
       x: 0,
       y: 0,
       movingMode: false,
-      scrollX: 0,
+      flag: 0,
     };
 
     this.panResponder = PanResponder.create({
@@ -46,51 +50,53 @@ class Board extends React.Component {
     this.unsubscribeFromMovingMode();
   }
 
+  tick = () => {
+    const { movingMode, flag } = this.state;
+
+    if (!movingMode || !flag) return;
+
+    let newScrollPos = this.scrollX + (this.WIDTH / 10) * flag;
+
+    if (newScrollPos < -180) newScrollPos = -180;
+    if (newScrollPos > this.WIDTH + 180) newScrollPos = this.WIDTH + 180;
+
+    this.refs._scrollView.scrollTo({ x: newScrollPos, duration: 200 });
+    this.scrollX = newScrollPos;
+  };
+
   onPanResponderMove(event, gesture, callback) {
     const leftTopCornerX = this.state.startingX + gesture.dx;
     const leftTopCornerY = this.state.startingY + gesture.dy;
     if (this.state.movingMode) {
       const draggedItem = this.state.draggedItem;
+      let flag = 0;
       this.x = event.nativeEvent.pageX;
       this.y = event.nativeEvent.pageY;
-      // console.log('Pos X: ', this.x, ', Pox Y: ', this.y);
+
       if (this.x < this.WIDTH / 10 || this.x > (this.WIDTH * 9) / 10) {
-        const flag = this.x < this.WIDTH / 10 ? -1 : 1;
-        const { scrollX } = this.state;
-        let newScrollPos = scrollX + ((this.WIDTH * 2) / 3) * flag;
-        if (newScrollPos < 0) newScrollPos = 0;
-        if (newScrollPos > this.WIDTH) newScrollPos - this.WIDTH;
-
-        this.refs._scrollView.scrollTo({ x: newScrollPos, duration: 1000 });
-
-        this.setState({
-          scrollX: newScrollPos,
-        });
-      } else {
-        const columnAtPosition = this.props.rowRepository.move(
-          draggedItem,
+        flag = this.x < this.WIDTH / 10 ? -1 : 1;
+      }
+      const columnAtPosition = this.props.rowRepository.move(
+        draggedItem,
+        this.x,
+        this.y,
+      );
+      if (columnAtPosition) {
+        let { scrolling, offset } = this.props.rowRepository.scrollingPosition(
+          columnAtPosition,
           this.x,
           this.y,
         );
-        if (columnAtPosition) {
-          let {
-            scrolling,
-            offset,
-          } = this.props.rowRepository.scrollingPosition(
-            columnAtPosition,
-            this.x,
-            this.y,
-          );
-          if (this.shouldScroll(scrolling, offset, columnAtPosition)) {
-            this.scroll(columnAtPosition, draggedItem, offset);
-          }
+        if (this.shouldScroll(scrolling, offset, columnAtPosition)) {
+          this.scroll(columnAtPosition, draggedItem, offset);
         }
-
-        this.setState({
-          x: leftTopCornerX,
-          y: leftTopCornerY,
-        });
       }
+
+      this.setState({
+        x: leftTopCornerX,
+        y: leftTopCornerY,
+        flag,
+      });
     }
   }
 
@@ -156,6 +162,7 @@ class Board extends React.Component {
     } else if (this.isScrolling()) {
       this.unsubscribeFromMovingMode();
     }
+    clearInterval(this.timer);
   }
 
   rotateTo(value) {
@@ -211,6 +218,9 @@ class Board extends React.Component {
         });
         columnCallback();
         this.rotate();
+
+        const timer = setInterval(this.tick, 100);
+        this.timer = timer;
       }, this.longPressDuration());
     };
   }
@@ -241,8 +251,12 @@ class Board extends React.Component {
 
   onScroll(event) {
     this.cancelMovingSubscription();
+    let scrollX = event.nativeEvent.contentOffset.x;
+
+    this.scrollX = scrollX;
+    this.x = scrollX;
     this.setState({
-      scrollX: event.nativeEvent.contentOffset.x,
+      scrollX,
     });
   }
 
@@ -322,7 +336,7 @@ class Board extends React.Component {
         scrollEventThrottle={16}
         onScrollEndDrag={this.onScrollEnd.bind(this)}
         onMomentumScrollEnd={this.onScrollEnd.bind(this)}
-        horizontal={true}
+        horizontal
         {...this.panResponder.panHandlers}
       >
         {columnWrappers}

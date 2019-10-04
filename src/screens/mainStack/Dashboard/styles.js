@@ -6,23 +6,23 @@ const styles = StyleSheet.create({
   },
   board: {
     flex: 1,
-    padding: 15,
     backgroundColor: '#63A2B8',
   },
   column: {
     width: 250,
-    margin: 10,
+    margin: 20,
     padding: 10,
     backgroundColor: '#F5FCFF',
     borderWidth: 1,
     borderColor: 'white',
-    borderRadius: 5,
+    borderRadius: 10,
   },
   columnHeader: {
-    fontWeight: 'bold',
-    fontSize: 18,
     padding: 10,
     alignSelf: 'center',
+    fontWeight: 'bold',
+    color: '#3171E0',
+    fontSize: 18,
   },
   item: {
     flex: 1,
